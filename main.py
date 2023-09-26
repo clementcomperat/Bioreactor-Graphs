@@ -443,6 +443,8 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
     
     Init_st_Display_Settings(TrackData_i, Unit)
     Init_st_Colors()
+    # date_mode = st.selectbox(label="Date Mode",
+    #                          options=st.session[])
     for Quantity in PV_Quantities:    
         if st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Quantity]:
             ynumber = PV_Which_yaxis(TrackData_i, Unit, Quantity)
@@ -486,7 +488,7 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
                                                           autoshift = True,
                                                           shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
                                                       )
-    PV_fig.update_layout(height=800)
+    PV_fig.update_layout(height=650)
     st.plotly_chart(PV_fig,
                     use_container_width=True,
                     config ={'scrollZoom': True,
@@ -548,7 +550,7 @@ def Display_st_SP_plots(TrackData_i : str, Unit :str, SP_fig: object):
                                                           autoshift = True,
                                                           shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
                                                       )
-    SP_fig.update_layout(height=800)
+    SP_fig.update_layout(height=650)
     st.plotly_chart(SP_fig,
                     use_container_width=True,
                     config ={'scrollZoom': True,
@@ -619,17 +621,19 @@ def main():
             Unit = tab_labels[itab]
             with tab:
                 if itab< ntabs:
+                    col1,col2,col3 = st.columns([1,10,1])
+                    with col2:
     #################### Display Editor ###################
-                    ## Initialization color,on/off (display or not) and curves##
-                    Init_st_Display_Settings(TrackData_i, Unit)
-                    ## Affichage et mise à jour de la fenêtre latérale
-                    Display_st_sidebar(TrackData_i, Unit, TrackInfo, Units_On, df)
+                        ## Initialization color,on/off (display or not) and curves##
+                        Init_st_Display_Settings(TrackData_i, Unit)
+                        ## Affichage et mise à jour de la fenêtre latérale
+                        Display_st_sidebar(TrackData_i, Unit, TrackInfo, Units_On, df)
                 
     #################### Display Graph ####################
-                    PV_fig= go.Figure()
-                    Display_st_PV_plots(TrackData_i, Unit,PV_fig)
-                    SP_fig= go.Figure()
-                    Display_st_SP_plots(TrackData_i, Unit, SP_fig)
+                        PV_fig= go.Figure()
+                        Display_st_PV_plots(TrackData_i, Unit,PV_fig)
+                        SP_fig= go.Figure()
+                        Display_st_SP_plots(TrackData_i, Unit, SP_fig)
                                 
                     itab+=1
         with tabs[-1]:
