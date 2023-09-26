@@ -1,11 +1,12 @@
 import streamlit as st
-
 import HCurve as HC
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from datetime import datetime as dt
 import plotly.graph_objects as go
+
+
 
 
 
@@ -31,13 +32,13 @@ def check_password():
     if "password_correct" not in st.session_state:
         # First run, show input for password.
         st.text_input(
-            "What's Antonio's plant name? No Caps", type="password", on_change=password_entered, key="password"
+            "What's Antiono's plant's name ? No CAPS nor Spaces", type="password", on_change=password_entered, key="password"
         )
         return False
     elif not st.session_state["password_correct"]:
         # Password not correct, show input + error.
         st.text_input(
-            "What's Antonio's plant name? No Caps", type="password", on_change=password_entered, key="password"
+            "What's Antiono's plant's name ? No CAPS nor Spaces", type="password", on_change=password_entered, key="password"
         )
         st.error("😕 Password incorrect")
         return False
@@ -496,7 +497,7 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
                                         'width': 700,
                                         'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
                                       }
-                                    }
+                                    },
                     )
     return
 
@@ -674,6 +675,6 @@ def main():
     return
 
 if check_password():
-  main()
+  main()  
 
 
