@@ -485,6 +485,7 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
                                                           autoshift = True,
                                                           shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
                                                       )
+    PV_fig.update_layout(height=800)
     st.plotly_chart(PV_fig,
                     use_container_width=True,
                     config ={'scrollZoom': True,
@@ -546,6 +547,7 @@ def Display_st_SP_plots(TrackData_i : str, Unit :str, SP_fig: object):
                                                           autoshift = True,
                                                           shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
                                                       )
+    SP_fig.update_layout(height=800)
     st.plotly_chart(SP_fig,
                     use_container_width=True,
                     config ={'scrollZoom': True,
