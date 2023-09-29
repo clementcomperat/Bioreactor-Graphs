@@ -489,7 +489,7 @@ def Display_st_SP_plots(FileName:str,TrackData_i : str, Unit :str, SP_fig: objec
     return
 
 def Display_st_Compare_Display_Settings():
-    st.header("PV - On/Off")
+    st.header("On/Off")
     colPV,colSP = st.tabs(["PV - On/Off","SP - On/Off"])
     with colPV:
         for Quantity in PV_Quantities:
