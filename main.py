@@ -62,62 +62,6 @@ PV_Quantities_to_display = HC.PV_Quantities_to_display
 SP_Quantities_to_display = []
 markers=[15,101,102,100,142,134,135,129,130,132,127,128]
 
-colorset = [(244,184,52),
-            (56,194,176),
-            (242,138,118),
-            (148,126,112),
-            (6,178,210),
-            (152,116,174),
-            (152,116,174),
-            (18,138,138),
-            (218,142,218),
-            (188,84,94),
-            (102,144,196),
-            (168,90,174),
-            (248,158,148),
-            (8,172,120),
-            (146,254,148),
-            (24,230,140),
-            (154,204,50),
-            (134,206,234),
-            (62,114,64),
-            (240,128,128),
-            (210,180,140),
-            (254,104,180),
-            (150,62,68),
-            (6,28,62),
-            (170,230,242),
-            (148,126,112)
-         ]
-
-# Colors= {"T" : (244,184,52),
-#          "DO" : (56,194,176),
-#          "pH" : (242,138,118),
-#          "RD" : (148,126,112),
-#          "Gas.F" : (6,178,210),
-#          "Pump.F" : (152,116,174),
-#          "Pump.V" : (152,116,174),
-#          "X" : (18,138,138),
-#          "V" : (218,142,218),
-#          "N" : (188,84,94),
-#          "AU" : (102,144,196),
-#          "CX" : (168,90,174),
-#          "G" : (248,158,148),
-#          "M" : (8,172,120),
-#          "U" : (146,254,148),
-#          "I" : (24,230,140),
-#          "R" : (154,204,50),
-#          "MT" : (134,206,234),
-#          "Gas.V" : (62,114,64),
-#          "PF" : (240,128,128),
-#          "PFT" : (210,180,140),
-#          "TR" : (254,104,180),
-#          "VT" : (150,62,68),
-#          "Pr" : (6,28,62),
-#          "Gas.OF" : (170,230,242),
-#          "Default": (148,126,112)
-#          }
-
 Colors= {"T" : "#f4b834",
          "DO" : "#38c2b0",
          "pH" : "#f28a76",
@@ -145,8 +89,6 @@ Colors= {"T" : "#f4b834",
          "Gas.OF" : "#aae6f2",
          "Default": "#947e70"
          }
-
-
 
 EU= {"T" : "°C",
      "DO" : "%DO",
@@ -177,7 +119,7 @@ EU= {"T" : "°C",
      }
 
 ############################################ Data Processing #############################################
-@st.cache_data
+
 def CSV_read(csv_file):
     
     ## Conversion du fichier depuis Streamlit ##
@@ -256,53 +198,55 @@ def CSV_read(csv_file):
 ############################################### Streamlit ################################################
 
 ## Initialisations
-def Init_st_TrackData(TrackData_i : str, TrackInfo: object, Units_On: list, df: object):
-    if TrackData_i not in st.session_state:
-        st.session_state[TrackData_i] = HC.TrackData(TrackInfo,Units_On,df)
+def Init_st_TrackData(FileName: str, TrackData_i : str, TrackInfo: object, Units_On: list, df: object):
+    if FileName + "/" +TrackData_i not in st.session_state:
+        st.session_state[FileName + "/" + TrackData_i] = HC.TrackData(TrackInfo,Units_On,df)
     return
 
-def Init_st_PV_Display(TrackData_i : str, Unit : str):
-    if TrackData_i+"/"+Unit+"/PV/Display" not in st.session_state:
-        PV_D = {}
-        for Quantity in PV_Quantities :
+def Init_st_PV_Display(FileName: str,TrackData_i : str, Unit : str):
+    for Quantity in PV_Quantities:
+        if FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity not in st.session_state:
             if Quantity in PV_Quantities_to_display:
-                PV_D[Quantity]=True
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity] = True
             else:
-                PV_D[Quantity]=False
-        st.session_state[TrackData_i+"/"+Unit+"/PV/Display"]=PV_D
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity] = False
     return
 
-def Init_st_SP_Display(TrackData_i : str, Unit : str):
-    if TrackData_i+"/"+Unit+"/SP/Display" not in st.session_state:
-        SP_D = {}
-        for Quantity in SP_Quantities:
+def Init_st_SP_Display(FileName: str,TrackData_i : str, Unit : str):
+    for Quantity in SP_Quantities:
+        if FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity not in st.session_state:
             if Quantity in SP_Quantities_to_display:
-                SP_D[Quantity]=True
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity] = True
             else:
-                SP_D[Quantity]=False
-        st.session_state[TrackData_i+"/"+Unit+"/SP/Display"]=SP_D
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity] = False
     return
 
-def Init_st_Display_Settings(TrackData_i : str, Unit : str):
-    ## [{TrackData_i}/{Unit}/PV/Display] est une liste de booléen pour savoir si la quantité en PV est à afficher ou pas
-    ## [{TrackData_i}/{Unit}/SP/Display] est une liste de booléen pour savoir si la quantité en PV est à afficher ou pas
+def Init_st_PV_Display_Curves(FileName: str,TrackData_i : str, Unit : str):
+    for Quantity in PV_Quantities :
+        for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity]:
+            if FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+ Quantity +"/"+ Curve.display_name not in st.session_state:
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/" + Quantity +"/"+ Curve.display_name]= True
+    return
+
+def Init_st_SP_Display_Curves(FileName: str,TrackData_i : str, Unit : str):
+    for Quantity in SP_Quantities :
+        for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]:
+            if FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity +"/"+ Curve.display_name not in st.session_state:
+                st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name]= True
+    return
+
+def Init_st_Display_Settings(FileName: str,TrackData_i : str, Unit : str):
+    ## [{TrackData_i}/{Unit}/PV/Display/{Quantity}] est un booléen pour savoir si la quantité en PV est à afficher ou pas
+    ## [{TrackData_i}/{Unit}/SP/Display/{Quantity}] est un booléen pour savoir si la quantité en PV est à afficher ou pas
     ## [{TrackData_i}/{Unit}/PV/Display/{CurveName}] est un booléen pour savoir si la courbe PV en question est à afficher ou pas
     ## [{TrackData_i}/{Unit}/SP/Display/{CurveName}] est un booléen pour savoir si la courbe SP en question est à afficher ou pas
     ### Le booléen sur la quantité est prioritaire sur le booléen de la courbe
     ## [Show_markers] est un booléen selon lequel on affiche ou pas les markers sur la courbes
     
-    Init_st_PV_Display(TrackData_i, Unit)
-    Init_st_SP_Display(TrackData_i, Unit)
-    
-    for Quantity in PV_Quantities :
-        for Curve in st.session_state[TrackData_i].Units[Unit].PV[Quantity]:
-            if TrackData_i+"/"+Unit+"/PV/Display/"+ Curve.display_name not in st.session_state:
-                st.session_state[TrackData_i+"/"+Unit+"/PV/Display/" + Curve.display_name]= True
-    
-    for Quantity in SP_Quantities :
-        for Curve in st.session_state[TrackData_i].Units[Unit].SP[Quantity]:
-            if TrackData_i+"/"+Unit+"/SP/Display/"+ Curve.display_name not in st.session_state:
-                st.session_state[TrackData_i+"/"+Unit+"/SP/Display/" + Curve.display_name]= True
+    Init_st_PV_Display(FileName,TrackData_i, Unit)
+    Init_st_SP_Display(FileName,TrackData_i, Unit)
+    Init_st_PV_Display_Curves(FileName,TrackData_i, Unit)
+    Init_st_SP_Display_Curves(FileName,TrackData_i, Unit)
     
     if "Show_markers" not in st.session_state:
         st.session_state.Show_markers = False
@@ -315,28 +259,11 @@ def Init_st_Colors():
             st.session_state[Quantity+"/Color"] = Colors[Quantity]
     return
 
-
-## Updates: 
-    
-def Update_st_PV_switch(TrackData_i : str, Unit : str, Quantity_to_update: str):
-    Init_st_PV_Display(TrackData_i, Unit)
-    if TrackData_i+"/"+Unit+"/PV/Display" in st.session_state:
-        st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Quantity_to_update] = not st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Quantity_to_update]
-
-def Update_st_SP_switch(TrackData_i : str, Unit : str, Quantity_to_update: str):
-    Init_st_SP_Display(TrackData_i, Unit)
-    if TrackData_i+"/"+Unit+"/SP/Display" in st.session_state:
-        st.session_state[TrackData_i+"/"+Unit+"/SP/Display"][Quantity_to_update]= not st.session_state[TrackData_i+"/"+Unit+"/SP/Display"][Quantity_to_update]
-    return
-
 ## Display
-def Display_st_sidebar(TrackData_i : str, Unit: str, TrackInfo: object, Units_On: list, df: object):
+def Display_st_sidebar(FileName: str,TrackData_i : str, Unit: str): #, TrackInfo: object, Units_On: list, df: object):
     ## La fenêtre latérale présente en un bouton à bascule pour l'affichage des marqueurs (courbes)
     ## 2 colonnes (st.columns()) avec d'une part les couleurs associées à chaque grandeur et d'autre part
     ## deux onglets "PV - On/Off" et "SP - On/Off" pour choisir l'affichage des Quantités et des courbes
-    
-    Init_st_TrackData(TrackData_i, TrackInfo, Units_On, df)
-    Init_st_Colors()
     
     with st.sidebar:
         st.title("Editor")
@@ -354,13 +281,7 @@ def Display_st_sidebar(TrackData_i : str, Unit: str, TrackInfo: object, Units_On
             for Quantity in Colors.keys():
                 st.color_picker(label = Quantity + " ["+ EU[Quantity]+ "]",
                                             key = Quantity + "/Color",
-                                            # disabled=True,
                                             label_visibility="visible")
-            # couleurs = [st.color_picker(label = Quantity,
-            #                             key = Quantity + "/Color",
-            #                             disabled=True,
-            #                             label_visibility="visible")
-            #             for Quantity in PV_Quantities]
             
         ## On/Off PV ##
         with sb_col2:
@@ -372,17 +293,17 @@ def Display_st_sidebar(TrackData_i : str, Unit: str, TrackInfo: object, Units_On
                 for Quantity in PV_Quantities:
                     ## Checkbox pour afficher ou pas la Quantité en question 
                     st.checkbox(label= Quantity,
-                                key="PV_On/Off"+ Quantity,
-                                value=st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Quantity],
-                                on_change=Update_st_PV_switch,
-                                args= (TrackData_i,Unit,Quantity)
+                                key=FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity,
+                                value = st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity]
                             )
                     ## dessous, un onglet déroulant contenant des checkbox concernant l'affichage des courbes
                     with st.expander("Curves to show"):
-                        for Curve in st.session_state[TrackData_i].Units[Unit].PV[Quantity]:
+                        for Curve in st.session_state[FileName+"/"+TrackData_i].Units[Unit].PV[Quantity]:
                                 # st.write(Curve.display_name)
                                 st.checkbox(label = Curve.display_name,
-                                            key = TrackData_i+"/"+Unit+"/PV/Display/" + Curve.display_name)
+                                            key = FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/" +Quantity +"/"+ Curve.display_name,
+                                            value = st.session_state[FileName + "/" + TrackData_i+"/"+Unit+"/PV/Display/" +Quantity +"/"+ Curve.display_name]
+                                            )
                                 
             with sb_tabs2:              
                 st.header("SP - On/Off")
@@ -390,17 +311,17 @@ def Display_st_sidebar(TrackData_i : str, Unit: str, TrackInfo: object, Units_On
                 for Quantity in SP_Quantities:
                     ## Checkbox pour afficher ou pas la Quantité en question
                     st.checkbox(label= Quantity,
-                                key="SP_On/Off"+ Quantity,                       
-                                value=st.session_state[TrackData_i+"/"+Unit+"/SP/Display"][Quantity],
-                                on_change=Update_st_SP_switch,
-                                args= (TrackData_i,Unit,Quantity)
+                                key=FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity,
+                                value = st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity]
                                 )
                     ## dessous, un onglet déroulant contenant des checkbox concernant l'affichage des courbes
                     with st.expander("Curves to show"):
-                        for Curve in st.session_state[TrackData_i].Units[Unit].SP[Quantity]:
+                        for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]:
                                 # st.write(Curve.display_name)
                                 st.checkbox(label = Curve.display_name,
-                                            key = TrackData_i+"/"+Unit+"/SP/Display/" + Curve.display_name)
+                                            key =FileName + "/" + TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name,
+                                            value = st.session_state[FileName + "/" + TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name]
+                                            )
     return
 
 def Bool_to_markers_mode(Bool):
@@ -409,13 +330,13 @@ def Bool_to_markers_mode(Bool):
     else:
         return "lines"
 
-def PV_Which_yaxis(TrackData_i: str, Unit:str, Quantity:str):
+def PV_Which_yaxis(FileName: str,TrackData_i: str, Unit:str, Quantity:str):
     #retourne "y" si la quantité est la première à être affichée
     #retourne "y{numéro}" sinon (numéro>=2)
-    Init_st_PV_Display(TrackData_i, Unit)
+    # Init_st_PV_Display(FileName,TrackData_i, Unit)
     number = 0
     for Q in PV_Quantities:
-        if st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Q]:
+        if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Q]:
             number +=1
         if Q == Quantity:
             if number ==1:
@@ -424,13 +345,13 @@ def PV_Which_yaxis(TrackData_i: str, Unit:str, Quantity:str):
                 return "y"+str(number)
     return "y"
 
-def SP_Which_yaxis(TrackData_i: str, Unit:str, Quantity:str):
+def SP_Which_yaxis(FileName: str,TrackData_i: str, Unit:str, Quantity:str):
     #retourne "y" si la quantité est la première à être affichée
     #retourne "y{numéro}" sinon (numéro>=2)
-    Init_st_SP_Display(TrackData_i, Unit)
+    # Init_st_SP_Display(FileName,TrackData_i, Unit)
     number = 0
     for Q in SP_Quantities:
-        if st.session_state[TrackData_i+"/"+Unit+"/SP/Display"][Q]:
+        if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Q]:
             number +=1
         if Q == Quantity:
             if number ==1:
@@ -439,20 +360,21 @@ def SP_Which_yaxis(TrackData_i: str, Unit:str, Quantity:str):
                 return "y"+str(number)
     return "y"
 
-def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
+def Display_st_PV_plots(FileName: str,TrackData_i : str, Unit :str, PV_fig: object):
     
-    Init_st_Display_Settings(TrackData_i, Unit)
-    Init_st_Colors()
+    # Init_st_Display_Settings(FileName, TrackData_i, Unit)
+    # Init_st_Colors()
     # date_mode = st.selectbox(label="Date Mode",
     #                          options=st.session[])
     for Quantity in PV_Quantities:    
-        if st.session_state[TrackData_i+"/"+Unit+"/PV/Display"][Quantity]:
-            ynumber = PV_Which_yaxis(TrackData_i, Unit, Quantity)
+        if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/"+Quantity]:
+            ynumber = PV_Which_yaxis(FileName,TrackData_i, Unit, Quantity)
             Qcolor = st.session_state[Quantity+"/Color"]
             j=0
-            
-            for Curve in st.session_state[TrackData_i].Units[Unit].PV[Quantity]:
-                if st.session_state[TrackData_i+"/"+Unit+"/PV/Display/" + Curve.display_name]:
+            if len(st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity])==0:
+                st.write(st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity])
+            for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity]:
+                if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/" +Quantity +"/"+ Curve.display_name]:
                     PV_fig.add_trace(go.Scatter(
                         mode= Bool_to_markers_mode(st.session_state.Show_markers),
                         x=Curve.XY.Timestamp,
@@ -488,6 +410,7 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
                                                           autoshift = True,
                                                           shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
                                                       )
+                
     PV_fig.update_layout(height=650)
     st.plotly_chart(PV_fig,
                     use_container_width=True,
@@ -503,30 +426,30 @@ def Display_st_PV_plots(TrackData_i : str, Unit :str, PV_fig: object):
                     )
     return
 
-def Display_st_SP_plots(TrackData_i : str, Unit :str, SP_fig: object):
+def Display_st_SP_plots(FileName:str,TrackData_i : str, Unit :str, SP_fig: object):
     
-    Init_st_Display_Settings(TrackData_i, Unit)
-    
+    # Init_st_Display_Settings(FileName,TrackData_i, Unit)
+    # Init_st_Colors()
     for Quantity in SP_Quantities:    
-        if st.session_state[TrackData_i+"/"+Unit+"/SP/Display"][Quantity]:
-            ynumber = SP_Which_yaxis(TrackData_i, Unit, Quantity)
-            Qcolor = st.session_state[Quantity + "/Colors"]   
+        if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/"+Quantity]:
+            ynumber = SP_Which_yaxis(FileName,TrackData_i, Unit, Quantity)
+            Qcolor = st.session_state[Quantity + "/Color"]   
             j=0
-            
-            for Curve in st.session_state[TrackData_i].Units[Unit].SP[Quantity]:
-                if st.session_state[TrackData_i+"/"+Unit+"/SP/Display/" + Curve.display_name]:
-                    SP_fig.add_trace(go.Scatter(
-                        mode= Bool_to_markers_mode(st.session_state.Show_markers),
-                        x=Curve.XY.Timestamp,
-                        y=Curve.XY[Curve.name],
-                        name = Curve.display_name,
-                        marker_symbol=markers[j%len(markers)],
-                        line = dict(color = Qcolor),
-                        showlegend=False,
-                        yaxis=ynumber
+            if len(st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]) !=  0: 
+                for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]:
+                    if st.session_state[FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name]:
+                        SP_fig.add_trace(go.Scatter(
+                            mode= Bool_to_markers_mode(st.session_state.Show_markers),
+                            x=Curve.XY.Timestamp,
+                            y=Curve.XY[Curve.name],
+                            name = Curve.display_name,
+                            marker_symbol=markers[j%len(markers)],
+                            line = dict(color = Qcolor),
+                            showlegend=False,
+                            yaxis=ynumber
+                            )
                         )
-                    )
-                j+=1
+                    j+=1
             if  ynumber == "y":
                 SP_fig.layout['yaxis'] = dict(title=Quantity + "["+ EU[Quantity]+ "]",
                                               titlefont = dict(
@@ -565,6 +488,184 @@ def Display_st_SP_plots(TrackData_i : str, Unit :str, SP_fig: object):
                     )
     return
 
+def Display_st_Compare_Display_Settings():
+    st.header("PV - On/Off")
+    colPV,colSP = st.tabs(["PV - On/Off","SP - On/Off"])
+    with colPV:
+        for Quantity in PV_Quantities:
+            if Quantity in PV_Quantities_to_display:
+                st.checkbox(label= Quantity,
+                            key="Compare///PV/Display/"+Quantity,
+                            value = True
+                            )
+            else:
+                st.checkbox(label= Quantity,
+                            key="Compare///PV/Display/"+Quantity,
+                            value = False
+                            )
+    with colSP:
+        for Quantity in SP_Quantities:
+            if Quantity in SP_Quantities_to_display:
+                st.checkbox(label= Quantity,
+                            key="Compare///SP/Display/"+Quantity,
+                            value = True
+                            )
+            else:
+                st.checkbox(label= Quantity,
+                            key="Compare///SP/Display/"+Quantity,
+                            value = False
+                            )
+    return
+
+
+def Display_st_Compare_Display_Curves(fig,FileName: str,TrackData_i : str, Unit :str, mode : str):
+    container = st.container()
+    
+    
+    if mode == "PV":
+        for Quantity in PV_Quantities:
+            with st.expander(Quantity+" - Curves to show"):
+                for Curve in st.session_state[FileName+"/"+TrackData_i].Units[Unit].PV[Quantity]:
+                        # st.write(Curve.display_name)
+                        st.checkbox(label = Curve.display_name,
+                                    key = "Compare/"+FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/" +Quantity +"/"+ Curve.display_name,
+                                    value = True)
+        with container:
+            # Init_st_Display_Settings(FileName,TrackData_i, Unit)
+            # Init_st_Colors()
+            for Quantity in SP_Quantities:    
+                if st.session_state["Compare///PV/Display/"+Quantity]:
+                    ynumber = PV_Which_yaxis("Compare","", "", Quantity)
+                    Qcolor = st.session_state[Quantity + "/Color"]   
+                    j=0
+                    if len(st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity]) !=  0: 
+                        for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].PV[Quantity]:
+                            if st.session_state["Compare/"+FileName + "/" +TrackData_i+"/"+Unit+"/PV/Display/" +Quantity +"/"+ Curve.display_name]:
+                                fig.add_trace(go.Scatter(
+                                    mode= Bool_to_markers_mode(st.session_state.Show_markers),
+                                    x=Curve.XY.Timestamp,
+                                    y=Curve.XY[Curve.name],
+                                    name = Curve.display_name,
+                                    marker_symbol=markers[j%len(markers)],
+                                    line = dict(color = Qcolor),
+                                    showlegend=False,
+                                    yaxis=ynumber
+                                    )
+                                )
+                            j+=1
+                    if  ynumber == "y":
+                        fig.layout['yaxis'] = dict(title=Quantity + "["+ EU[Quantity]+ "]",
+                                                      titlefont = dict(
+                                                          color = Qcolor
+                                                          ),
+                                                      tickfont = dict(
+                                                          color = Qcolor
+                                                          )
+                                                  )
+                    else: 
+                        fig.layout['yaxis'+ ynumber[1:]]= dict(title=Quantity + " ["+ EU[Quantity]+ "]",
+                                                                  titlefont = dict(
+                                                                  color = Qcolor
+                                                                  ),
+                                                                  tickfont = dict(
+                                                                  color = Qcolor
+                                                                  ),
+                                                                  side=["left","right"][(int(ynumber[1:])-1)%2],
+                                                                  anchor="free",
+                                                                  overlaying="y",
+                                                                  autoshift = True,
+                                                                  shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
+                                                              )
+            fig.update_layout(height=650)
+            st.plotly_chart(fig,
+                            use_container_width=True,
+                            config ={'scrollZoom': True,
+                                     'toImageButtonOptions': {
+                                         'format': 'svg', # one of png, svg, jpeg, webp
+                                         'filename': 'custom_image',
+                                         'height': 500,
+                                         'width': 700,
+                                         'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
+                                         },
+                                     }
+                            )
+    
+            
+            
+    if mode == "SP":
+        for Quantity in SP_Quantities:
+            with st.expander(Quantity+" - Curves to show"):
+                for Curve in st.session_state[FileName+"/"+TrackData_i].Units[Unit].SP[Quantity]:
+                    st.checkbox(label = Curve.display_name,
+                                    key = "Compare/"+FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name,
+                                    value = True)
+    
+        with container:
+            # Init_st_Display_Settings(FileName,TrackData_i, Unit)
+            # Init_st_Colors()
+            for Quantity in SP_Quantities:    
+                if st.session_state["Compare///SP/Display/"+Quantity]:
+                    ynumber = SP_Which_yaxis("Compare","", "", Quantity)
+                    Qcolor = st.session_state[Quantity + "/Color"]   
+                    j=0
+                    if len(st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]) !=  0: 
+                        for Curve in st.session_state[FileName + "/" +TrackData_i].Units[Unit].SP[Quantity]:
+                            if st.session_state["Compare/"+FileName + "/" +TrackData_i+"/"+Unit+"/SP/Display/" +Quantity +"/"+ Curve.display_name]:
+                                fig.add_trace(go.Scatter(
+                                    mode= Bool_to_markers_mode(st.session_state.Show_markers),
+                                    x=Curve.XY.Timestamp,
+                                    y=Curve.XY[Curve.name],
+                                    name = Curve.display_name,
+                                    marker_symbol=markers[j%len(markers)],
+                                    line = dict(color = Qcolor),
+                                    showlegend=False,
+                                    yaxis=ynumber
+                                    )
+                                )
+                            j+=1
+                    if  ynumber == "y":
+                        fig.layout['yaxis'] = dict(title=Quantity + "["+ EU[Quantity]+ "]",
+                                                      titlefont = dict(
+                                                          color = Qcolor
+                                                          ),
+                                                      tickfont = dict(
+                                                          color = Qcolor
+                                                          )
+                                                  )
+                    else: 
+                        fig.layout['yaxis'+ ynumber[1:]]= dict(title=Quantity + " ["+ EU[Quantity]+ "]",
+                                                                  titlefont = dict(
+                                                                  color = Qcolor
+                                                                  ),
+                                                                  tickfont = dict(
+                                                                  color = Qcolor
+                                                                  ),
+                                                                  side=["left","right"][(int(ynumber[1:])-1)%2],
+                                                                  anchor="free",
+                                                                  overlaying="y",
+                                                                  autoshift = True,
+                                                                  shift=[-15,15][(int(ynumber[1:])-1)%2]                                                          
+                                                              )
+            fig.update_layout(height=650)
+            st.plotly_chart(fig,
+                            use_container_width=True,
+                            config ={'scrollZoom': True,
+                                     'toImageButtonOptions': {
+                                         'format': 'svg', # one of png, svg, jpeg, webp
+                                         'filename': 'custom_image',
+                                         'height': 500,
+                                         'width': 700,
+                                         'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
+                                         },
+                                     }
+                            )
+    
+                        
+
+
+
+
+
 def Display_Events(Events):
     st.dataframe(data= Events, 
                  use_container_width= True,
@@ -572,6 +673,27 @@ def Display_Events(Events):
     return
                                 
 ################################################## Main ##################################################
+
+def Init_st_session_state(uploaded_files):
+    Init_st_Colors()
+    for uploaded_file in uploaded_files:
+        Units_OnOff, TrackInfo, TrackDatas, Events = CSV_read(uploaded_file)
+        Units_On = [Unit for Unit,Bool in Units_OnOff.items() if Bool]
+        if uploaded_file.name + "/Trackdata/Units_On" not in st.session_state:
+            st.session_state[uploaded_file.name + "/Units_On"]=Units_On
+            
+        for k in range(len(TrackDatas)):
+            TrackData_i = 'TrackData '+str(k+1)
+            df=TrackDatas[k]
+            Init_st_TrackData(uploaded_file.name,TrackData_i,TrackInfo,Units_On,df)
+            for Unit in Units_On:
+                Init_st_Display_Settings(uploaded_file.name,TrackData_i, Unit)
+                
+        if uploaded_file.name + "/nTrackDatas" not in st.session_state:
+            st.session_state[uploaded_file.name + "/nTrackDatas"] =len(TrackDatas)
+            st.balloons()
+    return 
+    
 
 
 def main():
@@ -581,101 +703,139 @@ def main():
     
     ################## Download section ###################
     ## On upload le CSV file avant de le lire avec la fonction CSV_read()
-    uploaded_file = st.file_uploader("Upload your CSV file",accept_multiple_files=False,type="csv")
+    uploaded_files = st.file_uploader("Upload your CSV file(s)",accept_multiple_files=True,type="csv")
     st.markdown("""---""") 
+    # Sidebar = st.sidebar
+    
+    
+    
+    ################### Initialization ####################
+    
+    ## Extracting Data 
+    ### Read_CSV(file) renvoie:
+    ### - Units_OnOff, dictionnaire qui à une Unit renvoie un booléen sur son utilisation
+    ### - TrackInfo, la section TrackInfo sous forme de dataframe
+    ### - TrackDatas, Tableau de dataframes chacun associé à un TrackData (Units non scindés)
+    ### - Events, la section TrackInfo sous forme de dataframe
+    
+    
+    if len(uploaded_files) != 0:
+        Init_st_session_state(uploaded_files)
+        # for key in st.session_state.keys():
+        #     st.write(key)
+        nFiles = len(uploaded_files)
+        FileList = [uploaded_files[i].name for i in range(nFiles)]
+        
+        tab1,tab2 = st.tabs(["Simple","Compare"])
+        
+        with tab1:
+        ################### File of interest ###################
+            
+            # iFile = st.radio("Which file you want to display ?", options=range(nFiles), format_func=lambda x:FileList[x])
+            iFile = st.selectbox("Which file you want to display ?", options=range(nFiles), format_func=lambda x:FileList[x])
+            FileName = FileList[iFile]
+  
+            ## TrackData Selection ##
 
-    ################### Extracting Data ###################
-    ## Read_CSV(file) renvoie:
-    ## - Units_OnOff, dictionnaire qui à une Unit renvoie un booléen sur son utilisation
-    ## - TrackInfo, la section TrackInfo sous forme de dataframe
-    ## - TrackDatas, Tableau de dataframes chacun associé à un TrackData (Units non scindés)
-    ## - Events, la section TrackInfo sous forme de dataframe
-       
-    if uploaded_file != None:
-        Units_OnOff, TrackInfo, TrackDatas, Events = CSV_read(uploaded_file)
+            n = st.session_state[FileName + "/nTrackDatas"] 
+            ################### Selecting Graphs ####################
+            select_TrackData = st.selectbox(label="Which TrackData do you want to display", 
+                                            options= [1+k for k in range(n)],
+                                            index=0)
+            TrackData_i = 'TrackData '+str(select_TrackData)
+            Units_On=[Unit for Unit in st.session_state[FileName+"/Units_On"]] # Intitulé pour chaque fenêtre 
         
-    ################### Formating Data ####################
-        ## TrackData Selection ##
-        select_TrackData = st.selectbox(label="Which TrackData do you want to display", 
-                                        options= [1+k for k in range(len(TrackDatas))],
-                                        index=0)
-        
-        ## Initialisation des TrackDatas ##
-        df=TrackDatas[select_TrackData-1]
-        TrackData_i = 'TrackData '+str(select_TrackData) # nom du trackdata
-        tab_labels=[Unit for Unit,Bool in Units_OnOff.items() if Bool] # Intitulé pour chaque fenêtre 
-        Units_On=tab_labels.copy() # list contenant uniquement les unités actives
-        
-        Init_st_TrackData(TrackData_i,TrackInfo,Units_On,df) 
-        
-    ################### Displaying Data ###################        
-        ## Fenêtres 
-        # Chaque Unit a sa fenêtre, une fenêtre de comparatif est ajoutée
-        
-        ntabs = len(tab_labels)
-        tab_labels.append("Compare")
-        
-        itab=0
-        tabs = st.tabs(tab_labels)
-        for tab in tabs :
-            Unit = tab_labels[itab]
-            with tab:
-                if itab< ntabs:
+            ################### Displaying Data ###################        
+                ## Fenêtres 
+                # Chaque Unit a sa fenêtre, une fenêtre de comparatif est ajoutée
+                
+            
+               
+            itab=0
+            # if FileName+"/"+TrackData_i not in st.session_state:
+            tabs = st.tabs(Units_On)
+            for tab in tabs :
+                Unit = Units_On[itab]
+                Display_st_sidebar(FileName,TrackData_i, Unit)
+                with tab:
+                    
                     col1,col2,col3 = st.columns([1,10,1])
                     with col2:
-    #################### Display Editor ###################
-                        ## Initialization color,on/off (display or not) and curves##
-                        Init_st_Display_Settings(TrackData_i, Unit)
-                        ## Affichage et mise à jour de la fenêtre latérale
-                        Display_st_sidebar(TrackData_i, Unit, TrackInfo, Units_On, df)
-                
-    #################### Display Graph ####################
                         PV_fig= go.Figure()
-                        Display_st_PV_plots(TrackData_i, Unit,PV_fig)
+                        Display_st_PV_plots(FileName,TrackData_i, Unit,PV_fig)
                         SP_fig= go.Figure()
-                        Display_st_SP_plots(TrackData_i, Unit, SP_fig)
-                                
-                    itab+=1
-        with tabs[-1]:
-            colcompare1,colcompare2 = st.columns(2)
-            choices = []
-            for Unit in Units_On:
-                choices.append(TrackData_i+"/"+Unit + "/PV")
-                choices.append(TrackData_i+"/"+Unit + "/SP")
-            with colcompare1:
-                choice1= st.selectbox(label="First Choice",
-                                      key = TrackData_i+ "/Compare/1" , 
-                                      options= choices,
-                                      # index = None
-                                      )
-                fig1 = go.Figure()
-                if choice1 != None:
-                    if choice1.split("/")[2] == "PV":
-                        Display_st_PV_plots(TrackData_i, choice1.split("/")[1],fig1)
-                    elif choice1.split("/")[2] == "SP":
-                        Display_st_SP_plots(TrackData_i, choice1.split("/")[1],fig1)
-            with colcompare2:
-                choice2= st.selectbox(label="Second Choice",
-                                      key = TrackData_i+ "/Compare/2" , 
-                                      options= choices,
-                                      # index = None
-                                      )
-                fig2 = go.Figure()
-                if choice2 != None:
-                    if choice2.split("/")[2] == "PV":
-                        Display_st_PV_plots(TrackData_i, choice2.split("/")[1],fig2)
-                    elif choice2.split("/")[2] == "SP":
-                        Display_st_SP_plots(TrackData_i, choice2.split("/")[1],fig2)
+                        Display_st_SP_plots(FileName,TrackData_i, Unit, SP_fig)
                             
+                                
+                itab+=1
+        with tab2:
+            options_to_compare = []
+            for file in FileList:
+                for TrackData_i in ["TrackData "+str(k+1) for k in range(st.session_state[file + "/nTrackDatas"] )]:
+                    for Unit in st.session_state[file+"/Units_On"]:
+                        options_to_compare.append(file+"/"+TrackData_i+"/"+Unit+"/PV")
+                        options_to_compare.append(file+"/"+TrackData_i+"/"+Unit+"/SP")
+            options = st.multiselect("To compare",options = options_to_compare,default=None)
+            noptions=len(options)
+            if noptions !=0:
+                Display_st_Compare_Display_Settings()
+                cols_compare = st.columns(noptions)
                 
+                icol=0
+                for col in cols_compare:
+                    with col:
+                        fig=go.Figure()
+                        Display_st_Compare_Display_Curves(fig, options[icol].split("/")[0], options[icol].split("/")[1], options[icol].split("/")[2], options[icol].split("/")[-1])
+                        
+                    icol+=1
+            
+            
+                        
+                    
+            # with tabs[-1]:
+            #     colcompare1,colcompare2 = st.columns(2)
+            #     choices = []
+            #     for Unit in Units_On:
+            #         choices.append(FileName+"/"+TrackData_i+"/"+Unit + "/PV")
+            #         choices.append(FileName+"/"+TrackData_i+"/"+Unit + "/SP")
+            #     with colcompare1:
+            #         choice1= st.selectbox(label="First Choice",
+            #                               key = TrackData_i+ "/Compare/1" , 
+            #                               options= choices,
+            #                               # index = None
+            #                               )
+            #         fig1 = go.Figure()
+            #         if choice1 != None:
+            #             if choice1.split("/")[2] == "PV":
+            #                 Display_st_PV_plots(TrackData_i, choice1.split("/")[1],fig1)
+            #             elif choice1.split("/")[2] == "SP":
+            #                 Display_st_SP_plots(TrackData_i, choice1.split("/")[1],fig1)
+            #     with colcompare2:
+            #         choice2= st.selectbox(label="Second Choice",
+            #                               key = TrackData_i+ "/Compare/2" , 
+            #                               options= choices,
+            #                               # index = None
+            #                               )
+            #         fig2 = go.Figure()
+            #         if choice2 != None:
+            #             if choice2.split("/")[2] == "PV":
+            #                 Display_st_PV_plots(TrackData_i, choice2.split("/")[1],fig2)
+            #             elif choice2.split("/")[2] == "SP":
+            #                 Display_st_SP_plots(TrackData_i, choice2.split("/")[1],fig2)
+                                
+                    
+            
+    
+                    
+            # with st.expander("Events"):
+            #     Display_Events(Events)
+            # with st.expander("Check Data"):
+            #     st.dataframe(TrackInfo)
+            #     st.dataframe(df)
         
-
                 
-        with st.expander("Events"):
-            Display_Events(Events)
-        with st.expander("Check Data"):
-            st.dataframe(TrackInfo)
-            st.dataframe(df)
+    # for key in st.session_state.keys():
+    #     st.write(key)
     return
 
 if check_password():
