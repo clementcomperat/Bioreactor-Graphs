@@ -691,7 +691,7 @@ def Init_st_session_state(uploaded_files):
                 
         if uploaded_file.name + "/nTrackDatas" not in st.session_state:
             st.session_state[uploaded_file.name + "/nTrackDatas"] =len(TrackDatas)
-            st.balloons()
+            
     return 
     
 
